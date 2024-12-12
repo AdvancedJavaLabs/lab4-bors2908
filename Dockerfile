@@ -2,13 +2,10 @@ FROM bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
 
 COPY build/libs/SalesMapReduce-all.jar /jar/SalesMapReduce.jar
 
-COPY ./input /input
+COPY script/hadoop-job.sh /hadoop-job.sh
 
-RUN hdfs dfs -mkdir -p /user/root
+RUN chmod +x /hadoop-job.sh
 
-RUN mkdir -p /data/input /data/output
-RUN hdfs dfs -mkdir /user/root/output
+RUN mkdir -p /input /output
 
-RUN hdfs dfs -put /input /user/root
-
-ENTRYPOINT hadoop jar "/jar/SalesMapReduce.jar" "org.itmo.SalesMapReduce" input output
+ENTRYPOINT ./hadoop-job.sh

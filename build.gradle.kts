@@ -49,9 +49,14 @@ tasks.register<Jar>("fatJar") {
     from(sourceSets.main.get().output)
 
     dependsOn(configurations.runtimeClasspath)
+
     from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
+        configurations.runtimeClasspath.get()
+            .filter { it.name.endsWith("jar") }
+            .map { zipTree(it) }
+    }) {
+        exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+    }
 
     manifest {
         attributes["Main-Class"] = "${mainClassName}Kt"
