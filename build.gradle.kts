@@ -4,7 +4,12 @@ plugins {
 }
 
 group = "org.itmo"
-version = "1.0-SNAPSHOT"
+
+private val mainClassName: String = "org.itmo.SalesMapReduce"
+
+application {
+    mainClass = mainClassName
+}
 
 repositories {
     mavenCentral()
@@ -13,6 +18,8 @@ repositories {
 dependencies {
     implementation("org.slf4j:slf4j-api:2.0.12")
     implementation("org.slf4j:slf4j-simple:2.0.13")
+
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     implementation("org.apache.hadoop:hadoop-common:3.4.0")
     implementation("org.apache.hadoop:hadoop-mapreduce-client-core:3.4.0")
@@ -26,10 +33,32 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(8)
 }
 
-application {
-    mainClass.set("SalesMapReduceKt")
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "${mainClassName}Kt"
+    }
+}
+
+tasks.register<Jar>("fatJar") {
+    archiveClassifier.set("all")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+
+    manifest {
+        attributes["Main-Class"] = "${mainClassName}Kt"
+    }
+}
+
+tasks.build {
+    dependsOn(tasks.named("fatJar"))
 }
 
