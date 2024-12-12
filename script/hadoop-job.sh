@@ -1,5 +1,11 @@
 #!/bin/bash
 
+./run.sh &
+./entrypoint.sh &
+
+echo "Waiting for Init."
+sleep 10
+
 hdfs dfs -mkdir -p /user/root
 hdfs dfs -mkdir -p /user/root/input
 
